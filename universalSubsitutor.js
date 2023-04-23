@@ -5,15 +5,15 @@
 // i.e: "dave":"insuffrable", will replace all instances of "Dave" with "Insuffrable", and "D4V3" with "1NSUFFR4BL3", and so on
 
 // Important notes:
-// |> This will only detect full words, and not parts of words.
-// |> This will only effect Homestuck
-// |> Words higher on the word list will be replaced before the others
-// |> This will not replicate quriks or casing when replacing title (Not that there are any)
-// |  |> If the substiution appears in page titles, make sure you format it how you would like it to appear in page titles
-// |> For those of you who know RegExp, The key is taken as a regex expression
-// |  |> Don't forget the \ character is an escape character in strings, so to use it in the expression you'll have to double it, i.e: \\
-// |> This doesn't effect flashes... yet!
-// |> This won't detect misspellings of words, you'll have to put those in manually
+//  This will only detect full words, and not parts of words.
+//  This will only effect Homestuck
+//  Words higher on the word list will be replaced before the others
+//  This will not replicate quriks or casing when replacing title (Not that there are any)
+//    If the substiution appears in page titles, make sure you format it how you would like it to appear in page titles
+//  For those of you who know RegExp, The key is taken as a regex expression
+//    Don't forget the \ character is an escape character in strings, so to use it in the expression you'll have to double it, i.e: \\
+//  This doesn't effect flashes... yet!
+//  This won't detect misspellings of words, you'll have to put those in manually
 
 const wordList = {
   "john":"Zoosmell",
@@ -21,23 +21,26 @@ const wordList = {
   "egbert":"Pooplord",
 
   "rose":"Flighty",
+  "rosesprite":"Flightysprite",
+  "jasprosesprite":"Jasprightysprite",
   "lalonde":"Broad",
 
-  "dave":"Insuffrable",
-  "davesprite":"Insuffrablesprite",
+  "dave":"Insufferable",
+  "davesprite":"Insufferablesprite",
   "strider":"Prick",
 
   "jade":"Farmstink",
+  "jadesprite":"Farmstinksprite",
   "harley":"Buttlass"
 }
 
 module.exports = {
-  title: "Universal Substitutor", 
+  title: "Zoosmell Pooplord", 
   author: "FlaringK (<a href='https://flaringk.github.io/Portfolio/'>Here's my uber cool site</a>)",
   modVersion: 0.2,
 
-  summary: "This is a template module for the Universal Subsitutor",
-  description: "This is a template module for the Universal Subsitutor, This module will subsitute all instances of a word with another, maintaining the original word's casing and quirk.<br />The wordList controls the subsitutions, the key is the word to be replaced, and the value is the word replacing<br />i.e: \"dave\":\"insuffrable\", will replace all instances of \"Dave\" with \"Insuffrable\", and \"D4V3\" with \"1NSUFFR4BL3\", and so on<br />Important notes:<br />|> This will only detect full words, and not parts of words.<br />|> This will only effect Homestuck<br />|> Words higher on the word list will be replaced before the others<br />|> This will not replicate quriks or casing when replacing title (Not that there are any)<br />|  |> If the substiution appears in page titles, make sure you format it how you would like it to appear in page titles<br />|> For those of you who know RegExp, The key is taken as a regex expression<br />|  |> Don't forget the \\ character is an escape character in strings, so to use it in the expression you'll have to double it, i.e: \\\\<br />|> This doesn't effect flashes... yet!<br />|> This won't detect misspellings of words, you'll have to put those in manually",
+  summary: "Replace every text instance of the beta kids names with their inital, sillier ones",
+  description: "This mod uses FlaringK's Universal subsitutor, names should be replaces regardless of their case or quirk, however it won't replaces names in images or flashes",
 
 
   // Replace text
@@ -67,7 +70,31 @@ module.exports = {
           const serchRegex = new RegExp("(?<![a-zA-Z])" + searchList[key] + "(?![a-zA-Z])", "gi")
 
           // == Title ==
-          archive.mspa.story[pageString].title = archive.mspa.story[pageString].title.replace(serchRegex, value)
+          const titleMatches = [...archive.mspa.story[pageString].title.matchAll(serchRegex)].length
+
+          for (let i = 0; i < titleMatches; i++) {
+
+            const wordMatch = archive.mspa.story[pageString].title.match(serchRegex)[0]
+            const wordMatchIndex = [...archive.mspa.story[pageString].title.matchAll(serchRegex)][0].index
+
+            switch(wordMatch) {
+              case wordMatch.toUpperCase():
+                archive.mspa.story[pageString].title = archive.mspa.story[pageString].title.betterReplace(wordMatch.toUpperCase(), value.toUpperCase(), wordMatchIndex)
+                break;
+              case wordMatch.toLowerCase():
+                archive.mspa.story[pageString].title = archive.mspa.story[pageString].title.betterReplace(wordMatch.toLowerCase(), value.toLowerCase(), wordMatchIndex)
+                break;
+              case captitalise(wordMatch):
+                archive.mspa.story[pageString].title = archive.mspa.story[pageString].title.betterReplace(captitalise(wordMatch), captitalise(value), wordMatchIndex)
+                break;
+              default:
+                archive.mspa.story[pageString].title = archive.mspa.story[pageString].title.betterReplace(wordMatch, value.toLowerCase(), wordMatchIndex)
+                break;
+            } 
+
+          }
+
+          // archive.mspa.story[pageString].title = archive.mspa.story[pageString].title.replace(serchRegex, value)
 
           // == Content ==
           const matches = [...archive.mspa.story[pageString].content.matchAll(serchRegex)].length
